@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.vitorgalvao.alfred.coffeecoffee</string>
+	<key>connections</key>
+	<dict>
+		<key>0B01601F-72A7-4C92-8B67-197D677D2A12</key>
+		<array/>
+		<key>208D10C7-CBD8-47D1-8A1F-66ED2C76BEF4</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>0B01601F-72A7-4C92-8B67-197D677D2A12</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>6A13300D-DEB5-4476-9E16-693114781152</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>208D10C7-CBD8-47D1-8A1F-66ED2C76BEF4</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>94757117-A2E1-4FE7-A171-555588BE76FF</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A5523421-FAE4-48C5-BEDD-9DEF7743DDF6</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>6A13300D-DEB5-4476-9E16-693114781152</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Also prevent the display from going to sleep</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>A5523421-FAE4-48C5-BEDD-9DEF7743DDF6</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>208D10C7-CBD8-47D1-8A1F-66ED2C76BEF4</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Vítor Galvão</string>
+	<key>description</key>
+	<string>Prevent your computer from going to sleep</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Coffee Coffee</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argument</key>
+				<string>{query}</string>
+				<key>passthroughargument</key>
+				<false/>
+				<key>variables</key>
+				<dict>
+					<key>prevent_display_sleep</key>
+					<string>false</string>
+				</dict>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.argument</string>
+			<key>uid</key>
+			<string>A5523421-FAE4-48C5-BEDD-9DEF7743DDF6</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>{var:coffee_keyword}</string>
+				<key>queuedelaycustom</key>
+				<integer>1</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Please wait…</string>
+				<key>script</key>
+				<string>// Helpers
+function sfItem(itemObj) {
+  return JSON.stringify({
+    rerun: 0.5,
+    items: [itemObj]
+  })
+}
+
+function envVar(varName) {
+  return $.NSProcessInfo
+    .processInfo
+    .environment
+    .objectForKey(varName).js
+}
+
+function readFile(path) {
+  const data = $.NSFileManager.defaultManager.contentsAtPath(path)
+  const string = $.NSString.alloc.initWithDataEncoding(data, $.NSUTF8StringEncoding).js
+  return string
+}
+
+function existCoffeeAnchor() {
+  const task = $.NSTask.alloc.init
+
+  task.executableURL = $.NSURL.alloc.initFileURLWithPath("/usr/bin/pgrep")
+  task.arguments = ["-f", "coffeecoffee_process_anchor"]
+  task.launchAndReturnError(false)
+
+  task.waitUntilExit
+  return task.terminationStatus === 0
+}
+
+function existCoffeeAnchor() {
+  const task = $.NSTask.alloc.init
+  const stdout = $.NSPipe.pipe
+
+  task.executableURL = $.NSURL.alloc.initFileURLWithPath("/usr/bin/pgrep")
+  task.arguments = ["-f", "coffeecoffee_process_anchor"]
+  task.standardOutput = stdout
+  task.launchAndReturnError(false)
+
+  const dataOut = stdout.fileHandleForReading.readDataToEndOfFile // Captured stdout so it is not printed
+  return task.terminationStatus === 0
+}
+
+// Main
+function run(argv) {
+  // Active
+  if (existCoffeeAnchor()) {
+    const turnOffTime = readFile(`${envVar("alfred_workflow_cache")}/auto_turn_off_at.txt`).replace(/\n$/, "")
+    const subtitle = turnOffTime.length === 0 ?
+      "Let computer go to sleep as usual" :
+      `Set to keep awake until around ${turnOffTime}`
+
+    return sfItem({
+      title: "Turn Off",
+      subtitle: subtitle,
+      arg: "off"
+    })
+  }
+
+  // Not active
+  const givenTimeout = argv[0]
+
+  // Any given value must start with a digit
+  if (givenTimeout === undefined || !givenTimeout.match(/^\d/)) {
+    return sfItem({
+      title: "Turn On",
+      subtitle: "Keep awake indefinitely",
+      arg: "coffeecoffee_process_anchor on",
+      icon: { path: "icon_alt.png" }
+    })
+  }
+
+  // Calculate timeout
+  const timeoutMinutes = givenTimeout.match(/\d\s*h/) ?
+    parseInt(parseFloat(givenTimeout) * 60) :
+    parseInt(givenTimeout)
+
+  const plurality = timeoutMinutes === 1 ? "minute" : "minutes"
+
+  // Calculate clock
+  const date = new Date() // Current time
+  date.setMinutes(date.getMinutes() + timeoutMinutes)
+  const clock = date.toISOString().slice(11, 16)
+
+  return sfItem({
+    title: `Turn On for ${timeoutMinutes} ${plurality}`,
+    subtitle: `Keep awake until around ${clock}`,
+    arg: `coffeecoffee_process_anchor ${timeoutMinutes}`,
+    icon: { path: "icon_alt.png" }
+  })
+}</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Prevent your computer from going to sleep</string>
+				<key>title</key>
+				<string>{const:alfred_workflow_name}</string>
+				<key>type</key>
+				<integer>7</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>94757117-A2E1-4FE7-A171-555588BE76FF</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<true/>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>readonly arg="${1#coffeecoffee_process_anchor }" # Remove anchor and keep argument
+readonly turn_off_file="${alfred_workflow_cache}/auto_turn_off_at.txt"
+
+trap '[[ -f "${turn_off_file}" ]] &amp;&amp; rm "${turn_off_file}"' EXIT
+
+# Turn off
+if [[ "${arg}" == 'off' ]]; then
+  readonly pgid="$(/usr/bin/pgrep -f 'coffeecoffee_process_anchor')"
+  kill -- -"${pgid}"
+  exit 0
+fi
+
+# Turn on
+if [[ "${arg}" =~ ^[0-9]+$ ]]; then
+  readonly seconds="$(bc &lt;&lt;&lt; "${arg} * 60")"
+  readonly timeout=('-t' "${seconds}")
+
+  mkdir -p "${alfred_workflow_cache}"
+  date -v "+${arg}M" '+%H:%M' &gt; "${turn_off_file}"
+else
+  readonly timeout=()
+fi
+
+if [[ "${prevent_display_sleep}" == 'true' ]]; then
+  readonly display=(-d)
+else
+  readonly display=()
+fi
+
+/usr/bin/caffeinate "${timeout[@]}" "${display[@]}"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>5</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>0B01601F-72A7-4C92-8B67-197D677D2A12</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.junction</string>
+			<key>uid</key>
+			<string>208D10C7-CBD8-47D1-8A1F-66ED2C76BEF4</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argument</key>
+				<string>{query}</string>
+				<key>passthroughargument</key>
+				<false/>
+				<key>variables</key>
+				<dict>
+					<key>prevent_display_sleep</key>
+					<string>true</string>
+				</dict>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.argument</string>
+			<key>uid</key>
+			<string>6A13300D-DEB5-4476-9E16-693114781152</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>## Usage
+
+Prevent macOS from sleeping via the `coffee` keyword. Optionally give a number when enabling to activate it for that amount of minutes, or hours if an `h` is appended. Action with &lt;kbd&gt;⌘&lt;/kbd&gt;&lt;kbd&gt;↩&lt;/kbd&gt; to also prevent the display from sleeping.
+
+![Alfred search for coffee, turn on](images/about/coffee_on.png)
+
+![Alfred search for coffee 1.5h](images/about/coffee_1.5h.png)
+
+![Alfred search for coffee, turn off](images/about/coffee_off.png)</string>
+	<key>uidata</key>
+	<dict>
+		<key>0B01601F-72A7-4C92-8B67-197D677D2A12</key>
+		<dict>
+			<key>xpos</key>
+			<real>460</real>
+			<key>ypos</key>
+			<real>75</real>
+		</dict>
+		<key>208D10C7-CBD8-47D1-8A1F-66ED2C76BEF4</key>
+		<dict>
+			<key>xpos</key>
+			<real>370</real>
+			<key>ypos</key>
+			<real>105</real>
+		</dict>
+		<key>6A13300D-DEB5-4476-9E16-693114781152</key>
+		<dict>
+			<key>note</key>
+			<string>Display will not turn off</string>
+			<key>xpos</key>
+			<real>260</real>
+			<key>ypos</key>
+			<real>165</real>
+		</dict>
+		<key>94757117-A2E1-4FE7-A171-555588BE76FF</key>
+		<dict>
+			<key>xpos</key>
+			<real>40</real>
+			<key>ypos</key>
+			<real>75</real>
+		</dict>
+		<key>A5523421-FAE4-48C5-BEDD-9DEF7743DDF6</key>
+		<dict>
+			<key>note</key>
+			<string>Display can turn off</string>
+			<key>xpos</key>
+			<real>260</real>
+			<key>ypos</key>
+			<real>45</real>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>coffee</string>
+				<key>placeholder</key>
+				<string></string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string></string>
+			<key>label</key>
+			<string>Toggle Keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>coffee_keyword</string>
+		</dict>
+	</array>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string>22.1</string>
+	<key>webaddress</key>
+	<string>https://github.com/vitorgalvao/coffee-coffee-workflow/</string>
+</dict>
+</plist>
