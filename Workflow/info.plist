@@ -402,7 +402,7 @@ Prevent macOS from sleeping via the `coffee` keyword. Optionally give a number w
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>22.1</string>
+	<string>2023.1</string>
 	<key>webaddress</key>
 	<string>https://github.com/vitorgalvao/coffee-coffee-workflow/</string>
 </dict>
