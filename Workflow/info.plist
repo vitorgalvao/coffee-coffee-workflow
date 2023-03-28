@@ -152,17 +152,6 @@ function readFile(path) {
 
 function existCoffeeAnchor() {
   const task = $.NSTask.alloc.init
-
-  task.executableURL = $.NSURL.alloc.initFileURLWithPath("/usr/bin/pgrep")
-  task.arguments = ["-f", "coffeecoffee_process_anchor"]
-  task.launchAndReturnError(false)
-
-  task.waitUntilExit
-  return task.terminationStatus === 0
-}
-
-function existCoffeeAnchor() {
-  const task = $.NSTask.alloc.init
   const stdout = $.NSPipe.pipe
 
   task.executableURL = $.NSURL.alloc.initFileURLWithPath("/usr/bin/pgrep")
@@ -170,7 +159,7 @@ function existCoffeeAnchor() {
   task.standardOutput = stdout
   task.launchAndReturnError(false)
 
-  const dataOut = stdout.fileHandleForReading.readDataToEndOfFile // Captured stdout so it is not printed
+  stdout.fileHandleForReading.readDataToEndOfFileAndReturnError(false) // Ignore STDOUT so it is not printed
   return task.terminationStatus === 0
 }
 
