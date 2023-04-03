@@ -202,7 +202,7 @@ function run(argv) {
   // Calculate clock
   const date = new Date() // Current time
   date.setMinutes(date.getMinutes() + timeoutMinutes)
-  const clock = date.toISOString().slice(11, 16)
+  const clock = date.toTimeString().slice(0, 5)
 
   return sfItem({
     title: `Turn On for ${timeoutMinutes} ${plurality}`,
