@@ -145,16 +145,14 @@ function envVar(varName) {
 }
 
 function readFile(path) {
-  const data = $.NSFileManager.defaultManager.contentsAtPath(path)
-  const string = $.NSString.alloc.initWithDataEncoding(data, $.NSUTF8StringEncoding).js
-  return string
+  return $.NSString.stringWithContentsOfFileEncodingError(path, $.NSUTF8StringEncoding, undefined).js
 }
 
 function existCoffeeAnchor() {
   const task = $.NSTask.alloc.init
   const stdout = $.NSPipe.pipe
 
-  task.executableURL = $.NSURL.alloc.initFileURLWithPath("/usr/bin/pgrep")
+  task.executableURL = $.NSURL.fileURLWithPath("/usr/bin/pgrep")
   task.arguments = ["-f", "coffeecoffee_process_anchor"]
   task.standardOutput = stdout
   task.launchAndReturnError(false)
