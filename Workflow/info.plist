@@ -213,6 +213,8 @@ function run(argv) {
 				<integer>1</integer>
 				<key>scriptfile</key>
 				<string></string>
+				<key>skipuniversalaction</key>
+				<true/>
 				<key>subtext</key>
 				<string>Prevent your computer from going to sleep</string>
 				<key>title</key>
