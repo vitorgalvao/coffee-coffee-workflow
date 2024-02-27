@@ -165,10 +165,10 @@ function existCoffeeAnchor() {
 function run(argv) {
   // Active
   if (existCoffeeAnchor()) {
-    const turnOffTime = readFile(`${envVar("alfred_workflow_cache")}/auto_turn_off_at.txt`).replace(/\n$/, "")
-    const subtitle = turnOffTime.length === 0 ?
+    const turnOffTime = readFile(`${envVar("alfred_workflow_cache")}/auto_turn_off_at.txt`)
+    const subtitle = turnOffTime === undefined ?
       "Let computer go to sleep as usual" :
-      `Set to keep awake until around ${turnOffTime}`
+      `Set to keep awake until around ${turnOffTime.replace(/\n$/, "")}`
 
     return sfItem({
       title: "Turn Off",
