@@ -85,9 +85,9 @@
 			<key>config</key>
 			<dict>
 				<key>argument</key>
-				<string>{query}</string>
+				<string></string>
 				<key>passthroughargument</key>
-				<false/>
+				<true/>
 				<key>variables</key>
 				<dict>
 					<key>prevent_display_sleep</key>
@@ -132,7 +132,7 @@
 				<string>// Helpers
 function sfItem(itemObj) {
   return JSON.stringify({
-    rerun: 0.5,
+    rerun: 0.2,
     items: [itemObj]
   })
 }
@@ -163,6 +163,8 @@ function existCoffeeAnchor() {
 
 // Main
 function run(argv) {
+  const processAnchor = "coffeecoffee_process_anchor"
+
   // Active
   if (existCoffeeAnchor()) {
     const turnOffTime = readFile(`${envVar("alfred_workflow_cache")}/auto_turn_off_at.txt`)
@@ -173,7 +175,7 @@ function run(argv) {
     return sfItem({
       title: "Turn Off",
       subtitle: subtitle,
-      arg: "off"
+      arg: ["off", processAnchor]
     })
   }
 
@@ -185,7 +187,7 @@ function run(argv) {
     return sfItem({
       title: "Turn On",
       subtitle: "Keep awake indefinitely",
-      arg: "coffeecoffee_process_anchor on",
+      arg: ["on", processAnchor],
       icon: { path: "icon_alt.png" }
     })
   }
@@ -205,7 +207,7 @@ function run(argv) {
   return sfItem({
     title: `Turn On for ${timeoutMinutes} ${plurality}`,
     subtitle: `Keep awake until around ${clock}`,
-    arg: `coffeecoffee_process_anchor ${timeoutMinutes}`,
+    arg: [timeoutMinutes, processAnchor],
     icon: { path: "icon_alt.png" }
   })
 }</string>
@@ -239,14 +241,15 @@ function run(argv) {
 				<key>escaping</key>
 				<integer>0</integer>
 				<key>script</key>
-				<string>readonly arg="${1#coffeecoffee_process_anchor }" # Remove anchor and keep argument
+				<string>readonly arg="${1}"
+readonly process_anchor="${2}"
 readonly turn_off_file="${alfred_workflow_cache}/auto_turn_off_at.txt"
 
 trap '[[ -f "${turn_off_file}" ]] &amp;&amp; rm "${turn_off_file}"' EXIT
 
 # Turn off
 if [[ "${arg}" == 'off' ]]; then
-  readonly pgid="$(/usr/bin/pgrep -f 'coffeecoffee_process_anchor')"
+  readonly pgid="$(/usr/bin/pgrep -f "${process_anchor}")"
   kill -- -"${pgid}"
   exit 0
 fi
@@ -295,9 +298,9 @@ fi
 			<key>config</key>
 			<dict>
 				<key>argument</key>
-				<string>{query}</string>
+				<string></string>
 				<key>passthroughargument</key>
-				<false/>
+				<true/>
 				<key>variables</key>
 				<dict>
 					<key>prevent_display_sleep</key>
