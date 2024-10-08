@@ -241,7 +241,11 @@ function run(argv) {
 				<key>escaping</key>
 				<integer>0</integer>
 				<key>script</key>
-				<string>readonly arg="${1}"
+				<string>function notification {
+  ./notificator --message "${1}" --title "${alfred_workflow_name}"
+}
+
+readonly arg="${1}"
 readonly process_anchor="${2}"
 readonly turn_off_file="${alfred_workflow_cache}/auto_turn_off_at.txt"
 
@@ -251,18 +255,22 @@ trap '[[ -f "${turn_off_file}" ]] &amp;&amp; rm "${turn_off_file}"' EXIT
 if [[ "${arg}" == 'off' ]]; then
   readonly pgid="$(/usr/bin/pgrep -f "${process_anchor}")"
   kill -- -"${pgid}"
+  notification 'Turned off'
   exit 0
 fi
 
 # Turn on
 if [[ "${arg}" =~ ^[0-9]+$ ]]; then
   readonly seconds="$(bc &lt;&lt;&lt; "${arg} * 60")"
+  readonly on_until="$(date -v "+${arg}M" '+%H:%M')"
   readonly timeout=('-t' "${seconds}")
 
   mkdir -p "${alfred_workflow_cache}"
-  date -v "+${arg}M" '+%H:%M' &gt; "${turn_off_file}"
+  echo "${on_until}" &gt; "${turn_off_file}"
+  notification "Keeping awake until around ${on_until}"
 else
   readonly timeout=()
+  notification 'Turned on'
 fi
 
 if [[ "${prevent_display_sleep}" == 'true' ]]; then
@@ -271,7 +279,8 @@ else
   readonly display=()
 fi
 
-/usr/bin/caffeinate "${timeout[@]}" "${display[@]}"</string>
+/usr/bin/caffeinate "${timeout[@]}" "${display[@]}"
+notification 'Turned off' # Only runs after caffeinate command exits</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
