@@ -253,7 +253,7 @@ trap '[[ -f "${turn_off_file}" ]] &amp;&amp; rm "${turn_off_file}"' EXIT
 
 # Turn off
 if [[ "${arg}" == 'off' ]]; then
-  readonly pgid="$(/usr/bin/pgrep -f "${process_anchor}")"
+  readonly pgid="$(/usr/bin/pgrep -nf "${process_anchor}")"
   kill -- -"${pgid}"
   notification 'Turned off'
   exit 0
