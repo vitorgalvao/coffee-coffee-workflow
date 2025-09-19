@@ -6,7 +6,7 @@ Prevent your computer from going to sleep
 
 ## Usage
 
-Prevent macOS from sleeping via the `coffee` keyword. Optionally give a number when enabling to activate it for that amount of minutes, or hours if an `h` is appended. Action with <kbd>⌘</kbd><kbd>↩&#xFE0E;</kbd> to also prevent the display from sleeping.
+Prevent macOS from sleeping via the `coffee` keyword. Optionally give a number when enabling to activate it for that amount of minutes, or hours if an `h` is appended. Action with <kbd>⌘</kbd><kbd>↩</kbd> to also prevent the display from sleeping.
 
 ![Alfred search for coffee, turn on](Workflow/images/about/coffee_on.png)
 
