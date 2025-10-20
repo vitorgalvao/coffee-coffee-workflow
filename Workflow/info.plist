@@ -150,14 +150,13 @@ function readFile(path) {
 
 function existCoffeeAnchor() {
   const task = $.NSTask.alloc.init
-  const stdout = $.NSPipe.pipe
 
   task.executableURL = $.NSURL.fileURLWithPath("/usr/bin/pgrep")
   task.arguments = ["-f", "coffeecoffee_process_anchor"]
-  task.standardOutput = stdout
+  task.standardOutput = $.NSFileHandle.fileHandleForWritingAtPath("/dev/null") // Ignore STDOUT so it is not printed
   task.launchAndReturnError(false)
 
-  stdout.fileHandleForReading.readDataToEndOfFileAndReturnError(false) // Ignore STDOUT so it is not printed
+  task.waitUntilExit
   return task.terminationStatus === 0
 }
 
